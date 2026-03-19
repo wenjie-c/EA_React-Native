@@ -1,9 +1,9 @@
-import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#007AFF' }}>
+    <Tabs style={{ borderTopWidth: 1, borderTopColor: '#007AFF' }} screenOptions={{ tabBarActiveTintColor: '#007AFF' }}>
       <Tabs.Screen
         name="organization"
         options={{

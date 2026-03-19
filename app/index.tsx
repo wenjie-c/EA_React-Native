@@ -1,21 +1,21 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido</Text>
-      
-      <TouchableOpacity 
+      <Text style={styles.title}>Panel de Administración</Text>
+
+      <TouchableOpacity
         style={styles.button}
         onPress={() => router.push("/(tabs)/organization")}
       >
         <Text style={styles.buttonText}>Ir a Organización</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.button}
         onPress={() => router.push("/(tabs)/users")}
       >
