@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { CreateOrgModal } from '../../components/modals/CreateOrgModal';
@@ -8,6 +9,7 @@ import { organizacionService } from '../../services/organizations';
 import { organizationStyles as styles } from '../../styles/organization.styles';
 
 export default function OrganizationScreen() {
+  const router = useRouter();
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -101,12 +103,15 @@ export default function OrganizationScreen() {
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <View style={styles.cardContent}>
+              <TouchableOpacity 
+                style={styles.cardContent}
+                onPress={() => router.push({ pathname: '/orgInfo', params: { id: item._id, name: item.name } })}
+              >
                 <Text style={styles.cardTitle}>{item.name}</Text>
                 <Text style={styles.cardSubtitle}>
                   ID | {item._id}
                 </Text>
-              </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => handleDeleteOrganization(item._id, item.name)}

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { CreateUserModal } from '../../components/modals/CreateUserModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
+import { UserInfoModal } from '../../components/modals/UserInfoModal';
 import { organizacionService } from '../../services/organizations';
 import { usuarioService } from '../../services/users';
 import { usersStyles as styles } from '../../styles/users.styles';
@@ -22,6 +23,9 @@ export default function UsersScreen() {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
+
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,6 +59,11 @@ export default function UsersScreen() {
   const handleDeleteUser = (id: string, name: string) => {
     setUserToDelete({ id, name });
     setDeleteModalVisible(true);
+  };
+
+  const handleViewUser = (user: any) => {
+    setSelectedUser(user);
+    setInfoModalVisible(true);
   };
 
   const confirmDeleteUser = async () => {
@@ -102,6 +111,24 @@ export default function UsersScreen() {
     }
   };
 
+  const handleUpdateUser = async (updatedData: any) => {
+    if (!selectedUser) return;
+    
+    setIsSubmitting(true);
+    try {
+      const updatedUser = await usuarioService.updateUsuario(selectedUser._id, updatedData);
+      setUsers(users.map(u => u._id === selectedUser._id ? updatedUser : u));
+      setSelectedUser(updatedUser); // Update the local selected user in case they open the edit menu again immediately
+      Alert.alert("Éxito", "Usuario actualizado correctamente");
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      Alert.alert("Error", "No se pudo actualizar el usuario");
+      throw error; // Throw error to prevent the modal from closing edit mode if it failed
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gestión de Usuarios</Text>
@@ -119,10 +146,13 @@ export default function UsersScreen() {
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <View style={styles.cardContent}>
+              <TouchableOpacity 
+                style={styles.cardContent}
+                onPress={() => handleViewUser(item)}
+              >
                 <Text style={styles.cardTitle}>{item.name}</Text>
                 <Text style={styles.cardSubtitle}>{item.email}</Text>
-              </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => handleDeleteUser(item._id, item.name)}
@@ -166,6 +196,15 @@ export default function UsersScreen() {
         itemName={userToDelete?.name || ''}
         isSubmitting={isSubmitting}
         styles={styles}
+      />
+
+      <UserInfoModal
+        visible={infoModalVisible}
+        onClose={() => setInfoModalVisible(false)}
+        user={selectedUser}
+        organizations={organizations}
+        onSave={handleUpdateUser}
+        isSubmitting={isSubmitting}
       />
     </View>
   );
