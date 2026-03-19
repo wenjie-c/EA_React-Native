@@ -3,11 +3,14 @@ import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   return (
-    <Tabs style={{ borderTopWidth: 1, borderTopColor: '#007AFF' }} screenOptions={{ tabBarActiveTintColor: '#007AFF' }}>
+    <Tabs screenOptions={{ 
+      tabBarActiveTintColor: '#007AFF',
+      headerShown: false 
+    }}>
       <Tabs.Screen
         name="organization"
         options={{
-          title: 'Organización',
+          title: 'Organizaciones',
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="business" size={24} color={color} />
           ),
