@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { AddUserToOrgModal } from '../../components/modals/AddUserToOrgModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
+import { EditOrgNameModal } from '../../components/modals/EditOrgNameModal';
 import { organizacionService } from '../../services/organizations';
 import { usuarioService } from '../../services/users';
 import { usersStyles as styles } from '../../styles/users.styles';
@@ -17,14 +18,21 @@ export default function OrgInfoScreen() {
   const [orgUsers, setOrgUsers] = useState<any[]>([]);
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedUserToAdd, setSelectedUserToAdd] = useState('');
-  
+
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
-  
+
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [currentOrgName, setCurrentOrgName] = useState(orgName);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setCurrentOrgName(orgName);
+  }, [orgName]);
 
   const fetchUsers = async (isActive: boolean) => {
     if (!orgId) return;
@@ -37,7 +45,7 @@ export default function OrgInfoScreen() {
 
       if (isActive) {
         setOrgUsers(usersInOrg);
-        
+
         // Filter out users that are already in the organization
         const usersInOrgIds = new Set(usersInOrg.map((u: any) => u._id));
         const usersNotInOrg = allUsers.filter((u: any) => !usersInOrgIds.has(u._id));
@@ -75,10 +83,10 @@ export default function OrgInfoScreen() {
     try {
       // Remove user from organization by setting their organizacion field to empty
       await usuarioService.updateUsuario(userToDelete.id, { organizacion: null });
-      
+
       // Instead of manual state updates, fetch the latest list to be safe
       await fetchUsers(true);
-      
+
       setDeleteModalVisible(false);
       setUserToDelete(null);
     } catch (error) {
@@ -99,14 +107,33 @@ export default function OrgInfoScreen() {
     try {
       // Add user to organization
       await usuarioService.updateUsuario(selectedUserToAdd, { organizacion: orgId });
-      
+
       await fetchUsers(true);
-      
+
       setAddModalVisible(false);
       setSelectedUserToAdd('');
     } catch (error) {
       console.error('Error al añadir usuario a la organización:', error);
       Alert.alert("Error", "No se pudo añadir el usuario a la organización");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateName = async (newName: string) => {
+    if (!newName.trim() || !orgId) {
+      Alert.alert("Error", "El nombre no puede estar vacío");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await organizacionService.updateOrganizacion(orgId, { name: newName });
+      setCurrentOrgName(newName);
+      setEditModalVisible(false);
+    } catch (error) {
+      console.error('Error al actualizar nombre de organización:', error);
+      Alert.alert("Error", "No se pudo actualizar el nombre");
     } finally {
       setIsSubmitting(false);
     }
@@ -118,7 +145,13 @@ export default function OrgInfoScreen() {
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 15 }}>
           <MaterialIcons name="arrow-back" size={28} color="#333" />
         </TouchableOpacity>
-        <Text style={[styles.title, { marginBottom: 0 }]}>{orgName}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.title, { marginBottom: 2 }]}>{currentOrgName}</Text>
+          <Text style={styles.cardSubtitle}>ID | {orgId}</Text>
+        </View>
+        <TouchableOpacity onPress={() => setEditModalVisible(true)}>
+          <MaterialIcons name="edit" size={24} color="#007AFF" />
+        </TouchableOpacity>
       </View>
       <View style={[styles.separator, { marginTop: 15 }]} />
 
@@ -175,6 +208,14 @@ export default function OrgInfoScreen() {
         itemName={userToDelete?.name || ''}
         isSubmitting={isSubmitting}
         styles={styles}
+      />
+
+      <EditOrgNameModal
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+        onSave={handleUpdateName}
+        initialName={currentOrgName}
+        isSubmitting={isSubmitting}
       />
     </View>
   );
