@@ -24,6 +24,27 @@ export const organizationStyles = StyleSheet.create({
     color: '#666',
     marginTop: 20,
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: '100%',
+    fontSize: 16,
+    color: '#333',
+  },
   list: {
     width: '100%',
     marginTop: 10,

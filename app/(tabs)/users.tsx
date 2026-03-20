@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CreateUserModal } from '../../components/modals/CreateUserModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 import { UserInfoModal } from '../../components/modals/UserInfoModal';
@@ -20,6 +20,7 @@ export default function UsersScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [selectedOrg, setSelectedOrg] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
@@ -129,18 +130,42 @@ export default function UsersScreen() {
     }
   };
 
+  const filteredUsers = users.filter(user => {
+    const searchLower = searchQuery.toLowerCase();
+    const userNameMatch = user.name.toLowerCase().includes(searchLower);
+    
+    // Find the organization name for this user
+    const userOrg = organizations.find(org => org._id === user.organizacion);
+    const orgNameMatch = userOrg ? userOrg.name.toLowerCase().includes(searchLower) : false;
+    
+    return userNameMatch || orgNameMatch;
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gestión de Usuarios</Text>
+
+      <View style={styles.searchContainer}>
+        <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por nombre o organización..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
       <View style={styles.separator} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
-      ) : users.length === 0 ? (
-        <Text style={styles.subtitle}>No hay usuarios registrados.</Text>
+      ) : filteredUsers.length === 0 ? (
+        <Text style={styles.subtitle}>
+          {searchQuery ? "No se encontraron usuarios." : "No hay usuarios registrados."}
+        </Text>
       ) : (
         <FlatList
-          data={users}
+          data={filteredUsers}
           keyExtractor={(item) => item._id?.toString()}
           style={styles.list}
           contentContainerStyle={styles.listContainer}

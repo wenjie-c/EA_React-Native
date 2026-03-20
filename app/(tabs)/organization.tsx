@@ -1,8 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CreateOrgModal } from '../../components/modals/CreateOrgModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 import { organizacionService } from '../../services/organizations';
@@ -15,6 +14,7 @@ export default function OrganizationScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newOrgName, setNewOrgName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [orgToDelete, setOrgToDelete] = useState<{ id: string, name: string } | null>(null);
@@ -86,18 +86,35 @@ export default function OrganizationScreen() {
     }
   };
 
+  const filteredOrganizations = organizations.filter(org => 
+    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gestión de Organizaciones</Text>
+      
+      <View style={styles.searchContainer}>
+        <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar organización..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
       <View style={styles.separator} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
-      ) : organizations.length === 0 ? (
-        <Text style={styles.subtitle}>No hay organizaciones registradas.</Text>
+      ) : filteredOrganizations.length === 0 ? (
+        <Text style={styles.subtitle}>
+          {searchQuery ? "No se encontraron organizaciones." : "No hay organizaciones registradas."}
+        </Text>
       ) : (
         <FlatList
-          data={organizations}
+          data={filteredOrganizations}
           keyExtractor={(item) => item._id?.toString()}
           style={styles.list}
           contentContainerStyle={styles.listContainer}

@@ -34,7 +34,7 @@ export default function OrgInfoScreen() {
     setCurrentOrgName(orgName);
   }, [orgName]);
 
-  const fetchUsers = async (isActive: boolean) => {
+  const fetchUsers = useCallback(async (isActive: boolean) => {
     if (!orgId) return;
     setLoading(true);
     try {
@@ -59,7 +59,7 @@ export default function OrgInfoScreen() {
     } finally {
       if (isActive) setLoading(false);
     }
-  };
+  }, [orgId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -68,7 +68,7 @@ export default function OrgInfoScreen() {
       return () => {
         isActive = false;
       };
-    }, [orgId])
+    }, [fetchUsers])
   );
 
   const handleDeleteUser = (userId: string, userName: string) => {
