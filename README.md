@@ -1,50 +1,50 @@
-# Welcome to your Expo app 👋
+# EA React Native Project
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aquest projecte és una aplicació de React Native per a la gestió d'usuaris i organitzacions, desenvolupada amb **Expo** i **Expo Router**.
 
-## Get started
+## Estructura del Projecte
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+.
+├── app/                  # Rutes de l'aplicació (Expo Router)
+│   ├── (tabs)/           # Pantalles de la barra de navegació (Usuaris, Organitzacions, etc.)
+│   ├── index.tsx         # Punt d'entrada de l'aplicació
+│   └── _layout.tsx       # Disseny arrel (Root Layout)
+├── components/           # Components React reutilitzables
+│   └── modals/           # Finestres modals (Crear usuari, Editar org, etc.)
+├── services/             # Lògica de comunicació amb l'API (Backend)
+│   ├── api.ts            # Configuració de la URL base (IP/Localhost)
+│   ├── users.ts          # Serveis d'usuaris
+│   └── organizations.ts  # Serveis d'organitzacions
+├── styles/               # Fitxers d'estils (CSS-in-JS)
+├── assets/               # Recursos estàtics (Imatges, icones)
+├── app.json              # Configuració d'Expo
+├── package.json          # Dependències i scripts de npm
+└── tsconfig.json         # Configuració de TypeScript
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Com iniciar el projecte
 
-## Learn more
+Segueix aquests passos per posar en marxa l'aplicació:
 
-To learn more about developing your project with Expo, look at the following resources:
+### 1. Instal·lació de dependències
+Assegura't de tenir Node.js instal·lat i executa:
+```bash
+npm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 2. Iniciar el servidor de desenvolupament
+Inicia Metro Bundler amb Expo:
+```bash
+npx expo start
+```
 
-## Join the community
+### 3. Execució en dispositius
+Un cop el servidor estigui funcionant, pots obrir l'app de les següents maneres:
+- **Android Emulator**: Prem `a` a la terminal.
+- **iOS Simulator**: Prem `i` a la terminal.
+- **Expo Go**: Escaneja el codi QR amb el teu mòbil real (Android o iOS).
+- **Web**: Prem `w` a la terminal.
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Configuració de l'API
+Si necessites canviar la IP del backend, recorda modificar el fitxer `services/api.ts`.
