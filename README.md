@@ -63,7 +63,7 @@ A professional React Native application built with **TypeScript** and **Expo Rou
 
 1.  **Clone the repository**:
     ```bash
-    git https://github.com/Jannogueira/EA_React-Native.git
+    git clone https://github.com/Jannogueira/EA_React-Native.git
     cd EA_React-Native
     ```
 
