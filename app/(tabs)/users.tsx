@@ -1,29 +1,41 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { CreateUserModal } from '../../components/modals/CreateUserModal';
-import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
-import { UserInfoModal } from '../../components/modals/UserInfoModal';
-import { organizacionService } from '../../services/organizations';
-import { usuarioService } from '../../services/users';
-import { usersStyles as styles } from '../../styles/users.styles';
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { CreateUserModal } from "../../components/modals/CreateUserModal";
+import { DeleteConfirmModal } from "../../components/modals/DeleteConfirmModal";
+import { UserInfoModal } from "../../components/modals/UserInfoModal";
+import { organizacionService } from "../../services/organizations";
+import { usuarioService } from "../../services/users";
+import { usersStyles as styles } from "../../styles/users.styles";
 
 export default function UsersScreen() {
+  // No utiliza useForm ?
   const [users, setUsers] = useState<any[]>([]);
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [newName, setNewName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [selectedOrg, setSelectedOrg] = useState<string>('');
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [selectedOrg, setSelectedOrg] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -36,14 +48,14 @@ export default function UsersScreen() {
         try {
           const [usersData, orgsData] = await Promise.all([
             usuarioService.getUsuarios(),
-            organizacionService.getOrganizaciones()
+            organizacionService.getOrganizaciones(),
           ]);
           if (isActive) {
             setUsers(usersData);
             setOrganizations(orgsData);
           }
         } catch (error) {
-          console.error('Error al cargar datos:', error);
+          console.error("Error al cargar datos:", error);
         } finally {
           if (isActive) setLoading(false);
         }
@@ -54,7 +66,7 @@ export default function UsersScreen() {
       return () => {
         isActive = false;
       };
-    }, [])
+    }, []),
   );
 
   const handleDeleteUser = (id: string, name: string) => {
@@ -73,11 +85,11 @@ export default function UsersScreen() {
     setIsSubmitting(true);
     try {
       await usuarioService.deleteUsuario(userToDelete.id);
-      setUsers(users.filter(user => user._id !== userToDelete.id));
+      setUsers(users.filter((user) => user._id !== userToDelete.id));
       setDeleteModalVisible(false);
       setUserToDelete(null);
     } catch (error) {
-      console.error('Error al eliminar usuario:', error);
+      console.error("Error al eliminar usuario:", error);
       Alert.alert("Error", "No se pudo eliminar el usuario.");
     } finally {
       setIsSubmitting(false);
@@ -96,16 +108,16 @@ export default function UsersScreen() {
         name: newName,
         email: newEmail,
         password: newPassword,
-        organizacion: selectedOrg || undefined
+        organizacion: selectedOrg || undefined,
       });
       setUsers([...users, newUser]);
       setModalVisible(false);
-      setNewName('');
-      setNewEmail('');
-      setNewPassword('');
-      setSelectedOrg('');
+      setNewName("");
+      setNewEmail("");
+      setNewPassword("");
+      setSelectedOrg("");
     } catch (error) {
-      console.error('Error al añadir usuario:', error);
+      console.error("Error al añadir usuario:", error);
       Alert.alert("Error", "No se pudo añadir el usuario");
     } finally {
       setIsSubmitting(false);
@@ -117,12 +129,17 @@ export default function UsersScreen() {
 
     setIsSubmitting(true);
     try {
-      const updatedUser = await usuarioService.updateUsuario(selectedUser._id, updatedData);
-      setUsers(users.map(u => u._id === selectedUser._id ? updatedUser : u));
+      const updatedUser = await usuarioService.updateUsuario(
+        selectedUser._id,
+        updatedData,
+      );
+      setUsers(
+        users.map((u) => (u._id === selectedUser._id ? updatedUser : u)),
+      );
       setSelectedUser(updatedUser); // Update the local selected user in case they open the edit menu again immediately
       Alert.alert("Éxito", "Usuario actualizado correctamente");
     } catch (error) {
-      console.error('Error al actualizar usuario:', error);
+      console.error("Error al actualizar usuario:", error);
       Alert.alert("Error", "No se pudo actualizar el usuario");
       throw error; // Throw error to prevent the modal from closing edit mode if it failed
     } finally {
@@ -130,7 +147,7 @@ export default function UsersScreen() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.toLowerCase();
     const userNameMatch = user.name.toLowerCase().includes(searchLower);
 
@@ -142,7 +159,12 @@ export default function UsersScreen() {
       <Text style={styles.title}>Gestión de Usuarios</Text>
 
       <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <MaterialIcons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar por nombre..."
@@ -154,10 +176,16 @@ export default function UsersScreen() {
       <View style={styles.separator} />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={{ marginTop: 20 }}
+        />
       ) : filteredUsers.length === 0 ? (
         <Text style={styles.subtitle}>
-          {searchQuery ? "No se encontraron usuarios." : "No hay usuarios registrados."}
+          {searchQuery
+            ? "No se encontraron usuarios."
+            : "No hay usuarios registrados."}
         </Text>
       ) : (
         <FlatList
@@ -214,7 +242,7 @@ export default function UsersScreen() {
         onConfirm={confirmDeleteUser}
         title="¿Eliminar Usuario?"
         message="¿Estás seguro de que deseas eliminar al usuario"
-        itemName={userToDelete?.name || ''}
+        itemName={userToDelete?.name || ""}
         isSubmitting={isSubmitting}
         styles={styles}
       />

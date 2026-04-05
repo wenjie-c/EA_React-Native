@@ -1,16 +1,20 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { MaterialIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+
+// Programa la cabecera falsa de las paginas/screens.
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ 
-      tabBarActiveTintColor: '#007AFF',
-      headerShown: false 
-    }}>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: "#007AFF",
+        headerShown: false,
+      }}
+    >
       <Tabs.Screen
         name="organization"
         options={{
-          title: 'Organizaciones',
+          title: "Organizaciones",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="business" size={24} color={color} />
           ),
@@ -19,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="users"
         options={{
-          title: 'Usuarios',
+          title: "Usuarios",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="people" size={24} color={color} />
           ),

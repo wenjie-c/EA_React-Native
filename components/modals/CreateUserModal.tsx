@@ -1,7 +1,14 @@
-import React from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { usersStyles as styles } from '../../styles/users.styles';
+import { Picker } from "@react-native-picker/picker";
+import React from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { usersStyles as styles } from "../../styles/users.styles";
 
 interface CreateUserModalProps {
   visible: boolean;
@@ -32,7 +39,7 @@ export const CreateUserModal = ({
   selectedOrg,
   setSelectedOrg,
   organizations,
-  isSubmitting
+  isSubmitting,
 }: CreateUserModalProps) => {
   return (
     <Modal
@@ -41,6 +48,7 @@ export const CreateUserModal = ({
       visible={visible}
       onRequestClose={onClose}
     >
+      {/* Estoy bastante seguro que esto se puede hacer con un useForm */}
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Nuevo Usuario</Text>
