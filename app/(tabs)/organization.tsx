@@ -1,23 +1,36 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { CreateOrgModal } from '../../components/modals/CreateOrgModal';
-import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
-import { organizacionService } from '../../services/organizations';
-import { organizationStyles as styles } from '../../styles/organization.styles';
+import HistoryServiceInstance from "@/services/HitoryService";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { CreateOrgModal } from "../../components/modals/CreateOrgModal";
+import { DeleteConfirmModal } from "../../components/modals/DeleteConfirmModal";
+import { organizacionService } from "../../services/organizations";
+import { organizationStyles as styles } from "../../styles/organization.styles";
 
 export default function OrganizationScreen() {
+  const where = "OrganizationScreen";
   const router = useRouter();
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [newOrgName, setNewOrgName] = useState('');
+  const [newOrgName, setNewOrgName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [orgToDelete, setOrgToDelete] = useState<{ id: string, name: string } | null>(null);
+  const [orgToDelete, setOrgToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -28,7 +41,7 @@ export default function OrganizationScreen() {
           const data = await organizacionService.getOrganizaciones();
           if (isActive) setOrganizations(data);
         } catch (error) {
-          console.error('Error al cargar organizaciones:', error);
+          console.error("Error al cargar organizaciones:", error);
         } finally {
           if (isActive) setLoading(false);
         }
@@ -39,7 +52,7 @@ export default function OrganizationScreen() {
       return () => {
         isActive = false;
       };
-    }, [])
+    }, []),
   );
 
   const handleDeleteOrganization = (id: string, name: string) => {
@@ -53,12 +66,24 @@ export default function OrganizationScreen() {
     setIsSubmitting(true);
     try {
       await organizacionService.deleteOrganizacion(orgToDelete.id);
-      setOrganizations(organizations.filter(org => org._id !== orgToDelete.id));
+      setOrganizations(
+        organizations.filter((org) => org._id !== orgToDelete.id),
+      );
       setDeleteModalVisible(false);
       setOrgToDelete(null);
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization ${orgToDelete.name} is deleted.`,
+      });
     } catch (error) {
-      console.error('Error al eliminar organización:', error);
+      console.error("Error al eliminar organización:", error);
       Alert.alert("Error", "No se pudo eliminar la organización.");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization could not be deleted. Error: ${error}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -73,29 +98,44 @@ export default function OrganizationScreen() {
     setIsSubmitting(true);
     try {
       const newOrg = await organizacionService.createOrganizacion({
-        name: newOrgName
+        name: newOrgName,
       });
       setOrganizations([...organizations, newOrg]);
       setModalVisible(false);
-      setNewOrgName('');
+      setNewOrgName("");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization ${JSON.stringify(newOrg)} is added.`,
+      });
     } catch (error) {
-      console.error('Error al añadir organización:', error);
+      console.error("Error al añadir organización:", error);
       Alert.alert("Error", "No se pudo añadir la organización");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization could not be added. Error: ${error}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const filteredOrganizations = organizations.filter(org => 
-    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOrganizations = organizations.filter((org) =>
+    org.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gestión de Organizaciones</Text>
-      
+
       <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <MaterialIcons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar organización..."
@@ -107,10 +147,16 @@ export default function OrganizationScreen() {
       <View style={styles.separator} />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={{ marginTop: 20 }}
+        />
       ) : filteredOrganizations.length === 0 ? (
         <Text style={styles.subtitle}>
-          {searchQuery ? "No se encontraron organizaciones." : "No hay organizaciones registradas."}
+          {searchQuery
+            ? "No se encontraron organizaciones."
+            : "No hay organizaciones registradas."}
         </Text>
       ) : (
         <FlatList
@@ -120,14 +166,17 @@ export default function OrganizationScreen() {
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.cardContent}
-                onPress={() => router.push({ pathname: '/orgInfo', params: { id: item._id, name: item.name } })}
+                onPress={() =>
+                  router.push({
+                    pathname: "/orgInfo",
+                    params: { id: item._id, name: item.name },
+                  })
+                }
               >
                 <Text style={styles.cardTitle}>{item.name}</Text>
-                <Text style={styles.cardSubtitle}>
-                  ID | {item._id}
-                </Text>
+                <Text style={styles.cardSubtitle}>ID | {item._id}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -162,7 +211,7 @@ export default function OrganizationScreen() {
         onConfirm={confirmDeleteOrganization}
         title="¿Eliminar Organización?"
         message="¿Estás seguro de que deseas eliminar la organización"
-        itemName={orgToDelete?.name || ''}
+        itemName={orgToDelete?.name || ""}
         isSubmitting={isSubmitting}
         styles={styles}
       />

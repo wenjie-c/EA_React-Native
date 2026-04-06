@@ -1,7 +1,7 @@
 // Copy paste desde https://github.com/wenjie-c/EA-React/blob/main/src/services/historialService.ts
 
 export class Event {
-  id: number = NaN;
+  key: number = NaN;
   where: string = "";
   args: string = "";
   public constructor(where: string, eventArgs: string) {
@@ -25,13 +25,17 @@ class HistoryService {
   }
 
   public add(event: Event) {
-    event.id = this.counter;
+    event.key = this.counter;
     this.counter++;
     this.events.push(event);
   }
 
   public remove(event: Event) {
-    this.events = this.events.filter((e) => e.id != event.id);
+    this.events = this.events.filter((e) => e.key != event.key);
+  }
+
+  public clear() {
+    while (this.events.length !== 0) this.events.pop();
   }
 
   // Asegura la inmutabilidad

@@ -1,9 +1,15 @@
 import { MD3LightTheme as DefaultTheme, useTheme } from "react-native-paper";
-const theme = {
+export const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primaryMyContainer: "#f2f3f4",
+  },
+  container: {
+    // Paletas de colores del funcionalismo aleman https://www.presentandcorrect.com/blogs/blog/rams-palette
+    primary: "#af2e1b",
+    secondary: "#cc6324",
+    tertiary: "#3b4b59",
+    deep: "#bfa07a",
   },
 };
 

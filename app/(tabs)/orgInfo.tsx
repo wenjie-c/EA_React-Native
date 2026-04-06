@@ -1,29 +1,41 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
-import { AddUserToOrgModal } from '../../components/modals/AddUserToOrgModal';
-import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
-import { EditOrgNameModal } from '../../components/modals/EditOrgNameModal';
-import { organizacionService } from '../../services/organizations';
-import { usuarioService } from '../../services/users';
-import { usersStyles as styles } from '../../styles/users.styles';
+import HistoryServiceInstance from "@/services/HitoryService";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { AddUserToOrgModal } from "../../components/modals/AddUserToOrgModal";
+import { DeleteConfirmModal } from "../../components/modals/DeleteConfirmModal";
+import { EditOrgNameModal } from "../../components/modals/EditOrgNameModal";
+import { organizacionService } from "../../services/organizations";
+import { usuarioService } from "../../services/users";
+import { usersStyles as styles } from "../../styles/users.styles";
 
 export default function OrgInfoScreen() {
+  const where = "OrgInfoScreen";
   const router = useRouter();
   const { id, name } = useLocalSearchParams();
-  const orgId = typeof id === 'string' ? id : (id?.[0] || '');
-  const orgName = typeof name === 'string' ? name : (name?.[0] || 'Organización');
+  const orgId = typeof id === "string" ? id : id?.[0] || "";
+  const orgName = typeof name === "string" ? name : name?.[0] || "Organización";
 
   const [orgUsers, setOrgUsers] = useState<any[]>([]);
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [addModalVisible, setAddModalVisible] = useState(false);
-  const [selectedUserToAdd, setSelectedUserToAdd] = useState('');
+  const [selectedUserToAdd, setSelectedUserToAdd] = useState("");
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [currentOrgName, setCurrentOrgName] = useState(orgName);
@@ -34,32 +46,40 @@ export default function OrgInfoScreen() {
     setCurrentOrgName(orgName);
   }, [orgName]);
 
-  const fetchUsers = useCallback(async (isActive: boolean) => {
-    if (!orgId) return;
-    setLoading(true);
-    try {
-      const [usersInOrg, allUsers] = await Promise.all([
-        organizacionService.getUsuariosPorOrganizacion(orgId),
-        usuarioService.getUsuarios()
-      ]);
+  const fetchUsers = useCallback(
+    async (isActive: boolean) => {
+      if (!orgId) return;
+      setLoading(true);
+      try {
+        const [usersInOrg, allUsers] = await Promise.all([
+          organizacionService.getUsuariosPorOrganizacion(orgId),
+          usuarioService.getUsuarios(),
+        ]);
 
-      if (isActive) {
-        setOrgUsers(usersInOrg);
+        if (isActive) {
+          setOrgUsers(usersInOrg);
 
-        // Filter out users that are already in the organization
-        const usersInOrgIds = new Set(usersInOrg.map((u: any) => u._id));
-        const usersNotInOrg = allUsers.filter((u: any) => !usersInOrgIds.has(u._id));
-        setAvailableUsers(usersNotInOrg);
+          // Filter out users that are already in the organization
+          const usersInOrgIds = new Set(usersInOrg.map((u: any) => u._id));
+          const usersNotInOrg = allUsers.filter(
+            (u: any) => !usersInOrgIds.has(u._id),
+          );
+          setAvailableUsers(usersNotInOrg);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos de la organización:", error);
+        if (isActive) {
+          Alert.alert(
+            "Error",
+            "No se pudieron cargar los usuarios de la organización.",
+          );
+        }
+      } finally {
+        if (isActive) setLoading(false);
       }
-    } catch (error) {
-      console.error('Error al cargar datos de la organización:', error);
-      if (isActive) {
-        Alert.alert("Error", "No se pudieron cargar los usuarios de la organización.");
-      }
-    } finally {
-      if (isActive) setLoading(false);
-    }
-  }, [orgId]);
+    },
+    [orgId],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -68,7 +88,7 @@ export default function OrgInfoScreen() {
       return () => {
         isActive = false;
       };
-    }, [fetchUsers])
+    }, [fetchUsers]),
   );
 
   const handleDeleteUser = (userId: string, userName: string) => {
@@ -82,7 +102,9 @@ export default function OrgInfoScreen() {
     setIsSubmitting(true);
     try {
       // Remove user from organization by setting their organizacion field to empty
-      await usuarioService.updateUsuario(userToDelete.id, { organizacion: null });
+      await usuarioService.updateUsuario(userToDelete.id, {
+        organizacion: null,
+      });
 
       // Instead of manual state updates, fetch the latest list to be safe
       await fetchUsers(true);
@@ -90,7 +112,7 @@ export default function OrgInfoScreen() {
       setDeleteModalVisible(false);
       setUserToDelete(null);
     } catch (error) {
-      console.error('Error al remover usuario de organización:', error);
+      console.error("Error al remover usuario de organización:", error);
       Alert.alert("Error", "No se pudo remover el usuario de la organización.");
     } finally {
       setIsSubmitting(false);
@@ -106,14 +128,16 @@ export default function OrgInfoScreen() {
     setIsSubmitting(true);
     try {
       // Add user to organization
-      await usuarioService.updateUsuario(selectedUserToAdd, { organizacion: orgId });
+      await usuarioService.updateUsuario(selectedUserToAdd, {
+        organizacion: orgId,
+      });
 
       await fetchUsers(true);
 
       setAddModalVisible(false);
-      setSelectedUserToAdd('');
+      setSelectedUserToAdd("");
     } catch (error) {
-      console.error('Error al añadir usuario a la organización:', error);
+      console.error("Error al añadir usuario a la organización:", error);
       Alert.alert("Error", "No se pudo añadir el usuario a la organización");
     } finally {
       setIsSubmitting(false);
@@ -131,9 +155,19 @@ export default function OrgInfoScreen() {
       await organizacionService.updateOrganizacion(orgId, { name: newName });
       setCurrentOrgName(newName);
       setEditModalVisible(false);
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization ${JSON.stringify(newName)} is updated.`,
+      });
     } catch (error) {
-      console.error('Error al actualizar nombre de organización:', error);
+      console.error("Error al actualizar nombre de organización:", error);
       Alert.alert("Error", "No se pudo actualizar el nombre");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `Organization could not be updated. Error: ${error}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -141,12 +175,24 @@ export default function OrgInfoScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingHorizontal: 20 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 15 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          width: "100%",
+          paddingHorizontal: 20,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{ marginRight: 15 }}
+        >
           <MaterialIcons name="arrow-back" size={28} color="#333" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { marginBottom: 2 }]}>{currentOrgName}</Text>
+          <Text style={[styles.title, { marginBottom: 2 }]}>
+            {currentOrgName}
+          </Text>
           <Text style={styles.cardSubtitle}>ID | {orgId}</Text>
         </View>
         <TouchableOpacity onPress={() => setEditModalVisible(true)}>
@@ -156,9 +202,15 @@ export default function OrgInfoScreen() {
       <View style={[styles.separator, { marginTop: 15 }]} />
 
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color="#0000ff"
+          style={{ marginTop: 20 }}
+        />
       ) : orgUsers.length === 0 ? (
-        <Text style={styles.subtitle}>No hay usuarios en esta organización.</Text>
+        <Text style={styles.subtitle}>
+          No hay usuarios en esta organización.
+        </Text>
       ) : (
         <FlatList
           data={orgUsers}
@@ -205,7 +257,7 @@ export default function OrgInfoScreen() {
         onConfirm={confirmDeleteUser}
         title="¿Remover Usuario?"
         message="¿Estás seguro de que deseas remover de la organización al usuario"
-        itemName={userToDelete?.name || ''}
+        itemName={userToDelete?.name || ""}
         isSubmitting={isSubmitting}
         styles={styles}
       />

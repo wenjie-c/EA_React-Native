@@ -1,4 +1,4 @@
-import customTheme from "@/styles/customTheme";
+import { theme } from "@/styles/customTheme";
 import { useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { PaperProvider } from "react-native-paper";
@@ -10,7 +10,7 @@ export default function Index() {
   const router = useRouter();
 
   return (
-    <PaperProvider theme={customTheme}>
+    <PaperProvider theme={theme}>
       <View style={styles.container}>
         <Text style={styles.title}>Panel de Administración</Text>
 

@@ -1,3 +1,4 @@
+import HistoryServiceInstance from "@/services/HitoryService";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
@@ -18,6 +19,7 @@ import { usuarioService } from "../../services/users";
 import { usersStyles as styles } from "../../styles/users.styles";
 
 export default function UsersScreen() {
+  const where = "UsersScreen";
   // No utiliza useForm ?
   const [users, setUsers] = useState<any[]>([]);
   const [organizations, setOrganizations] = useState<any[]>([]);
@@ -85,12 +87,23 @@ export default function UsersScreen() {
     setIsSubmitting(true);
     try {
       await usuarioService.deleteUsuario(userToDelete.id);
+
       setUsers(users.filter((user) => user._id !== userToDelete.id));
       setDeleteModalVisible(false);
       setUserToDelete(null);
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User ${userToDelete.name} is deleted.`,
+      });
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
       Alert.alert("Error", "No se pudo eliminar el usuario.");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User ${userToDelete.name} could not be deleted. Error:${error}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -116,9 +129,19 @@ export default function UsersScreen() {
       setNewEmail("");
       setNewPassword("");
       setSelectedOrg("");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User ${JSON.stringify(newUser)} is added.`,
+      });
     } catch (error) {
       console.error("Error al añadir usuario:", error);
       Alert.alert("Error", "No se pudo añadir el usuario");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User could not be added. Error: ${error}`,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -138,9 +161,19 @@ export default function UsersScreen() {
       );
       setSelectedUser(updatedUser); // Update the local selected user in case they open the edit menu again immediately
       Alert.alert("Éxito", "Usuario actualizado correctamente");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User ${JSON.stringify(updatedUser)} is updated.`,
+      });
     } catch (error) {
       console.error("Error al actualizar usuario:", error);
       Alert.alert("Error", "No se pudo actualizar el usuario");
+      HistoryServiceInstance.add({
+        key: NaN,
+        where: where,
+        args: `User could not be updated. Error: ${error}`,
+      });
       throw error; // Throw error to prevent the modal from closing edit mode if it failed
     } finally {
       setIsSubmitting(false);
