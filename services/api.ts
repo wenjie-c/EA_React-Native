@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 
 const getBaseUrl = () => {
-  const physicalDeviceIP = "192.168.1.22";
+  const physicalDeviceIP = "192.168.42.2";
 
   if (Platform.OS === "android") {
     return `http://${physicalDeviceIP}:9000`;
