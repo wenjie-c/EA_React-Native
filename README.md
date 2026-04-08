@@ -10,6 +10,7 @@
 - [Documentacion de React Nativo](https://reactnative.dev/docs/components-and-apis)
 - [Card](https://oss.callstack.com/react-native-paper/docs/components/Card/)
 - [Router de Expo y no de React](https://docs.expo.dev/router/advanced/tabs/)
+- [Sobre la problematica de Expo go con las maquinas virtuales, cambiar la direccion ip](https://github.com/expo/expo/issues/19689)
 
 ## Uso de IA Generativa
 
